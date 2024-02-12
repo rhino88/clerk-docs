@@ -11,13 +11,31 @@ The `<UserButton />` component is used to render the familiar user button UI pop
 
 Clerk is the only provider with multi-session support, allowing users to sign into multiple accounts at once and switch between them. For multisession apps, the `<UserButton />` automatically supports instant account switching, without the need of a full page reload. For more information, you can check out the [Multi-session applications guide](/docs/custom-flows/multi-session-applications#overview).
 
+## Sign Out
+
+A primary method for allowing users to sign out is the `<UserButton />` component.
+
+<Images
+  width={880}
+  height={666}
+  src="/docs/images/custom-flows/sign-out.jpg"
+  alt="The User Button component with the 'Sign out' option hovered over."
+/>
+
+In an application with [multisession](/docs/custom-flows/multi-session-applications) enabled and with more than one account signed in, the component will also display a **Sign out of all accounts** option. 
+
+<Images
+  width={880}
+  height={666}
+  src="/docs/images/custom-flows/user-button-multisession.jpg"
+  alt="The User Button component with multiple accounts signed in."
+/>
+
 ## Usage
 
 In this example, `<UserButton />` is mounted inside a header component, which is a common pattern on many websites and applications. When the user is signed in, they will see their avatar and be able to open the popup menu.
 
-<Tabs type="framework" items={["Next.js", "React", "Remix"]}>
-  <Tab>
-    <CodeBlockTabs type="router" options={["App Router", "Pages Router"]}>
+    <CodeBlockTabs type="router" options={["Next.js", "Javscript"]}>
       ```jsx filename="layout.[jsx/tsx]"
       import {
         ClerkProvider,
@@ -54,144 +72,27 @@ In this example, `<UserButton />` is mounted inside a header component, which is
         );
       }
       ```
+```html
+<html>
+<body>
+    <header>
+        <h1>My application</h1>
 
-      ```jsx filename="userButtonExample.[jsx/tsx]"
-      import {
-        ClerkProvider,
-        SignedIn,
-        SignedOut,
-        SignInButton,
-        UserButton,
-      } from "@clerk/nextjs";
+        <div id="user-button"></div>
+    </header>
+    
+    <script>
+        const el = document.getElementById("user-button");
+        
+        // Mount the pre-built Clerk UserButton component
+        // in an HTMLElement on your page. 
+        window.Clerk.mountUserButton(el);
+    </script>
+</body>
+</html>
+```
 
-      function Header() {
-      return (
-          <header style={{ display: "flex", justifyContent: "space-between", padding: 20 }}>
-            <h1>My App</h1>
-            <SignedIn>
-              {/* Mount the UserButton component */}
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              {/* Signed out users get sign in button */}
-              <SignInButton/>
-            </SignedOut>
-          </header>
-      );
-      }
-
-      function MyApp({ pageProps }) {
-        return (
-          <ClerkProvider {...pageProps}>
-            <Header />
-          </ClerkProvider>
-        );
-      }
-
-      export default MyApp;
-      ```
-    </CodeBlockTabs>
-  </Tab>
-
-  <Tab>
-    ```tsx filename="app.tsx"
-    import {
-      ClerkProvider,
-      SignedIn,
-      SignIn,
-      SignUp,
-      UserButton,
-    } from "@clerk/clerk-react";
-    import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
-
-    const clerk_pub_key = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-
-    function PublicPage() {
-        return (
-          <>
-            <h1>Public page</h1>
-            <a href="/protected">Go to protected page</a>
-          </>
-        );
-    }
-
-    function ProtectedPage() {
-      return (
-          <>
-            <h1>Protected page</h1>
-            <UserButton />
-          </>
-        );
-    }
-
-    function ClerkProviderWithRoutes() {
-      const navigate = useNavigate();
-
-      return (
-        <ClerkProvider
-          publishableKey={clerk_pub_key}
-          navigate={(to) => navigate(to)}>
-            <Routes>
-              <Route path="/" element={<PublicPage />} />
-              <Route
-              path="/sign-in/*"
-              element={<SignIn routing="path" path="/sign-in" />}
-              />
-              <Route
-              path="/sign-up/*"
-              element={<SignUp routing="path" path="/sign-up" />}
-              />
-              <Route
-                path="/protected"
-                element={
-                  <SignedIn>
-                    <ProtectedPage />
-                  </SignedIn>
-                }
-              />
-            </Routes>
-          </ClerkProvider>
-        );
-    }
-
-    function App() {
-      return (
-        <BrowserRouter>
-          <ClerkProviderWithRoutes />
-        </BrowserRouter>
-      );
-    }
-    ```
-  </Tab>
-
-  <Tab>
-    ```tsx filename="router/index.tsx"
-    import {
-      UserButton,
-    } from "@clerk/remix";
-    import { getAuth } from "@clerk/remix/ssr.server";
-    import { LoaderFunction, redirect } from "@remix-run/node";
-
-    export const loader: LoaderFunction = async (args) => {
-      const { userId } = await getAuth(args);
-      if(!userId){
-        return redirect("/sign-in");
-      }
-      return {};
-    }
-
-    export default function Index() {
-      return (
-        <div>
-            <h1>Index route</h1>
-            <p>You are signed in!</p>
-            <UserButton />
-        </div>
-      );
-    }
-    ```
-  </Tab>
-</Tabs>
+</CodeBlockTabs>
 
 ## Properties
 
