@@ -11,7 +11,24 @@ The `<UserButton />` component is used to render the familiar user button UI pop
 
 Clerk is the only provider with multi-session support, allowing users to sign into multiple accounts at once and switch between them. For multisession apps, the `<UserButton />` automatically supports instant account switching, without the need of a full page reload. For more information, you can check out the [Multi-session applications guide](/docs/custom-flows/multi-session-applications#overview).
 
-## Sign Out
+## `<UserButton />` properties
+
+All props below are optional.
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `appearance` | <code>[Appearance](/docs/components/customization/overview) \| undefined</code> | Optional object to style your components. Will only affect [Clerk Components][components-ref] and not [Account Portal][ap-ref] pages. |
+| `showName` | `boolean` | Controls if the user name is displayed next to the user image button. |
+| `signInUrl` | `string` | The full URL or path to navigate to when the "Add another account" button is clicked. |
+| `userProfileMode` | `'modal' \| 'navigation'` | Controls whether clicking the "Manage your account" button will cause the [`<UserProfile />`][userprofile-ref] component to open as a modal, or if the browser will navigate to the `userProfileUrl` where [`<UserProfile />`][userprofile-ref] is mounted as a page.<br />Defaults to: `'modal'`. |
+| `userProfileUrl` | `string` | The full URL or path leading to the user management interface. |
+| `afterSignOutUrl` | `string` | The full URL or path to navigate to after a signing out from all accounts (applies to both single-session and multi-session apps). Default is `/`. |
+| `afterMultiSessionSingleSignOutUrl` | `string` | The full URL or path to navigate to after a signing out from currently active account (multisession apps). |
+| `afterSwitchSessionUrl` | `string` | The full URL or path to navigate to after a successful account change (multi-session apps). |
+| `defaultOpen` | `boolean` | Controls whether the `<UserButton />` should open by default during the first render. |
+| `userProfileProps` | `object` | Specify options for the underlying [`<UserProfile />`][userprofile-ref] component. e.g. `{additionalOAuthScopes: {google: ['foo', 'bar'], github: ['qux']}}`. |
+
+## Sign out
 
 A primary method for allowing users to sign out is the `<UserButton />` component.
 
@@ -31,85 +48,111 @@ In an application with [multisession](/docs/custom-flows/multi-session-applicati
   alt="The User Button component with multiple accounts signed in."
 />
 
-## Usage
+## `<UserButton />` example
 
 In this example, `<UserButton />` is mounted inside a header component, which is a common pattern on many websites and applications. When the user is signed in, they will see their avatar and be able to open the popup menu.
 
-    <CodeBlockTabs type="router" options={["Next.js", "Javscript"]}>
-      ```jsx filename="layout.[jsx/tsx]"
-      import {
-        ClerkProvider,
-        SignedIn,
-        SignedOut,
-        SignInButton,
-        UserButton,
-      } from "@clerk/nextjs";
+<Tabs type="framework" options={["Next.js", "JavaScript"]}>
+  <Tab>
+  ```jsx filename="layout.tsx"
+  import {
+    ClerkProvider,
+    SignedIn,
+    SignedOut,
+    SignInButton,
+    UserButton,
+  } from "@clerk/nextjs";
 
-      function Header() {
-        return (
-          <header style={{ display: "flex", justifyContent: "space-between", padding: 20 }}>
-            <h1>My App</h1>
-            <SignedIn>
-              {/* Mount the UserButton component */}
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              {/* Signed out users get sign in button */}
-              <SignInButton/>
-            </SignedOut>
-          </header>
-        );
-      }
+  function Header() {
+    return (
+      <header style={{ display: "flex", justifyContent: "space-between", padding: 20 }}>
+        <h1>My App</h1>
+        <SignedIn>
+          {/* Mount the UserButton component */}
+          <UserButton />
+        </SignedIn>
+        <SignedOut>
+          {/* Signed out users get sign in button */}
+          <SignInButton/>
+        </SignedOut>
+      </header>
+    );
+  }
 
-      export default function RootLayout({ children }: { children: React.ReactNode }) {
-        return (
-          <html lang="en">
-            <ClerkProvider>
-              <Header />
-              {children}
-            </ClerkProvider>
-          </html>
-        );
-      }
-      ```
-```html
-<html>
-<body>
-    <header>
+  export default function RootLayout({ children }: { children: React.ReactNode }) {
+    return (
+      <html lang="en">
+        <ClerkProvider>
+          <Header />
+          {children}
+        </ClerkProvider>
+      </html>
+    );
+  }
+  ```
+  </Tab>
+
+  <Tab>
+    <CodeBlockTabs type="npm-script" options={["NPM Module", "window.Clerk"]}>
+      ```js
+      import Clerk from '@clerk/clerk-js';
+
+      // Select for <div id="app"> and add a <div id="user-button"> to it
+      document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+        <header>
         <h1>My application</h1>
+        <div
+          id="user-button"
+        ></div>
+        </header>
+      `;
 
-        <div id="user-button"></div>
-    </header>
-    
-    <script>
-        const el = document.getElementById("user-button");
-        
-        // Mount the pre-built Clerk UserButton component
-        // in an HTMLElement on your page. 
-        window.Clerk.mountUserButton(el);
-    </script>
-</body>
-</html>
-```
+      const userButtonComponent = document.querySelector<HTMLDivElement>('#user-button')!;
 
-</CodeBlockTabs>
+      // Initialize Clerk with your Clerk publishable key
+      const clerk = new Clerk(`{{pub_key}}`);
+      await clerk.load();
+      
+      clerk.mountUserButton(userButtonComponent, {});
+      ```
+      
+      ```html
+      <html>
+      <body>
+          <header>
+              <h1>My application</h1>
 
-## Properties
+              <div id="user-button"></div>
+          </header>
+          
+          <script>
+            // Get your publishable key and frontend API URL from the Clerk Dashboard
+            const clerkPublishableKey = `{{pub_key}}`;
+            const frontendApi = '[your-domain].clerk.accounts.dev';
+            const version = '@latest'; // Set to appropriate version
+            // Creates asynchronous script
+            const script = document.createElement('script');
+            script.setAttribute('data-clerk-frontend-api', frontendApi);
+            script.setAttribute('data-clerk-publishable-key', clerkPublishableKey);
+            script.async = true;
+            script.src = `https://${frontendApi}/npm/@clerk/clerk-js${version}/dist/clerk.browser.js`;
 
-All props below are optional.
-
-| Name | Type | Description |
-| --- | --- | --- |
-| `appearance` | <code>[Appearance](/docs/components/customization/overview) \| undefined</code> | Optional object to style your components. Will only affect [Clerk Components][components-ref] and not [Account Portal][ap-ref] pages. |
-| `showName` | `boolean` | Controls if the user name is displayed next to the user image button. |
-| `signInUrl` | `string` | The full URL or path to navigate to when the "Add another account" button is clicked. |
-| `userProfileMode` | `'modal' \| 'navigation'` | Controls whether clicking the "Manage your account" button will cause the [`<UserProfile />`][userprofile-ref] component to open as a modal, or if the browser will navigate to the `userProfileUrl` where [`<UserProfile />`][userprofile-ref] is mounted as a page.<br />Defaults to: `'modal'`. |
-| `userProfileUrl` | `string` | The full URL or path leading to the user management interface. |
-| `afterSignOutUrl` | `string` | The full URL or path to navigate to after a signing out from all accounts (applies to both single-session and multi-session apps). Default is `/`. |
-| `afterMultiSessionSingleSignOutUrl` | `string` | The full URL or path to navigate to after a signing out from currently active account (multisession apps). |
-| `afterSwitchSessionUrl` | `string` | The full URL or path to navigate to after a successful account change (multi-session apps). |
-| `defaultOpen` | `boolean` | Controls whether the `<UserButton />` should open by default during the first render. |
-| `userProfileProps` | `object` | Specify options for the underlying [`<UserProfile />`][userprofile-ref] component. e.g. `{additionalOAuthScopes: {google: ['foo', 'bar'], github: ['qux']}}`. |
+            // Adds listener to initialize ClerkJS after it's loaded
+            script.addEventListener('load', async function () {
+              await window.Clerk.load();
+          
+              const userButtonComponent = document.querySelector('#user-button');
+          
+              window.Clerk.mountUserButton(userButtonComponent, {});
+            });
+            document.body.appendChild(script);
+          </script> 
+      </body>
+      </html>
+      ```
+    </CodeBlockTabs>
+  </Tab>
+</Tabs>
 
 ## Customization
 
