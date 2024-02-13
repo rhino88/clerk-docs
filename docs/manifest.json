@@ -160,7 +160,7 @@
       ["Manual JWT Verification", "/backend-requests/handling/manual-jwt"],
       "# Versioning",
       ["Overview", "/backend-requests/versioning/overview"],
-      ["Available Versions", "/backend-requests/versioning/available-versions"],
+      ["Available versions", "/backend-requests/versioning/available-versions"],
       "# Resources",
       ["Session tokens", "/backend-requests/resources/session-tokens"],
       ["Rate limits", "/backend-requests/resources/rate-limits"]
