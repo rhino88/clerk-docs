@@ -28,31 +28,11 @@ All props below are optional.
 | `defaultOpen` | `boolean` | Controls whether the `<UserButton />` should open by default during the first render. |
 | `userProfileProps` | `object` | Specify options for the underlying [`<UserProfile />`][userprofile-ref] component. e.g. `{additionalOAuthScopes: {google: ['foo', 'bar'], github: ['qux']}}`. |
 
-## Sign out
-
-A primary method for allowing users to sign out is the `<UserButton />` component.
-
-<Images
-  width={880}
-  height={666}
-  src="/docs/images/custom-flows/sign-out.jpg"
-  alt="The User Button component with the 'Sign out' option hovered over."
-/>
-
-In an application with [multisession](/docs/custom-flows/multi-session-applications) enabled and with more than one account signed in, the component will also display a **Sign out of all accounts** option. 
-
-<Images
-  width={880}
-  height={666}
-  src="/docs/images/custom-flows/user-button-multisession.jpg"
-  alt="The User Button component with multiple accounts signed in."
-/>
-
 ## `<UserButton />` example
 
 In this example, `<UserButton />` is mounted inside a header component, which is a common pattern on many websites and applications. When the user is signed in, they will see their avatar and be able to open the popup menu.
 
-<Tabs type="framework" options={["Next.js", "JavaScript"]}>
+<Tabs type="framework" items={["Next.js", "JavaScript"]}>
   <Tab>
   ```jsx filename="layout.tsx"
   import {
