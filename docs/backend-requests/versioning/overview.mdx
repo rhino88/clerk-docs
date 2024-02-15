@@ -5,8 +5,6 @@ description: A brief guide on how versioning works in Clerk.
 
 # Versioning
 
-## Introduction
-
 When backwards incompatible changes are necessary for an API, new versions are released to prevent disruption to existing applications. These versions are identified by their release date, such as 2021-02-05. Both the frontend and backend APIs follow the same version.
 
 A complete list of all the available versions with their changes can be found on the [API versions](/docs/backend-requests/versioning/available-versions) page.
@@ -21,13 +19,11 @@ A breaking change is any modification that would require users to alter their ex
 - **Backwards incompatible endpoint changes**: Implementing changes in an endpoint's functionality that older client versions cannot support. For instance, adding a new status to the sign-in process.
 - **Endpoint removal**: Discontinuing access to an existing endpoint, which remains accessible in earlier versions.
 
-## Using a specific version
+## When using an SDK
 
-### With SDKs
+Each Clerk SDK version corresponds to a specific API version, so by updating the SDK, you're also updating to the latest compatible API version.
 
-If you are utilizing a Clerk SDK, version management is simplified. Each SDK version corresponds to a specific API version, so by updating the SDK, you are also updating to the latest compatible API version.
-
-### Direct API access
+### Choosing an API version
 
 When making direct API calls to an endpoint, there are three options to specify the version:
 
@@ -35,4 +31,6 @@ When making direct API calls to an endpoint, there are three options to specify 
 2. **Clerk-API-Version header**: Include a `Clerk-API-Version` header in your requests.
 3. **Dashboard setting**: Set a default version in the Clerk Dashboard. This version will be used if one is not explicitly specified.
 
-If both the query parameter and the header are present in a request, the most recent version will take priority.
+<Callout type="info">
+  If both the query parameter and the header are present in a request, the most recent version will take priority.
+</Callout>
