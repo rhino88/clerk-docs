@@ -3,11 +3,32 @@ title: Integrate Supabase with Clerk
 description: Learn how to integrate Clerk into your Supabase application.
 ---
 
+<TutorialHero
+  beforeYouStart={[
+    {
+      title: "Set up a Clerk application",
+      link: "https://clerk.com/docs/quickstarts/setup-clerk",
+    },
+  ]}
+>
+
+- Create a Supabase JWT Template
+- Configure an RLS policy with Clerk
+
+</TutorialHero>
+
+
 # Integrate Supabase with Clerk
 
-The first step is to create a new Clerk application from your Clerk Dashboard if you haven’t done so already. You can choose whichever authentication strategy and social login providers you prefer. For more information, check out our [Set up your application](/docs/quickstarts/setup-clerk) guide.
+<Steps>
 
-After your Clerk application has been created, go to the Clerk Dashboard and navigate to the **[JWT Templates](https://dashboard.clerk.com/last-active?path=jwt-templates)** page. Click on the **New template** button to create a new template based on Supabase.
+### Create a Supabase JWT Template
+
+Clerk can generate [JSON Web Tokens](https://en.wikipedia.org/wiki/JSON_Web_Token) (JWTs) to represent each user signed into your app. You can customize these JWTs with [JWT templates](/docs/backend-requests/making/jwt-templates#jwt-templates), enabling you to add any necessary data from third party services, such as Supabase.
+
+After your Clerk application has been created, go to the Clerk Dashboard and navigate to the **[JWT Templates](https://dashboard.clerk.com/last-active?path=jwt-templates)** page. Click on the **New template** button to create a new template based on Supabase.http://localhost:4003/docs
+
+</Steps>
 
 <Images 
   width={3024}
