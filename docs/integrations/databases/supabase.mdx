@@ -3,48 +3,44 @@ title: Integrate Supabase with Clerk
 description: Learn how to integrate Clerk into your Supabase application.
 ---
 
+
 <TutorialHero
   beforeYouStart={[
     {
       title: "Set up a Clerk application",
-      link: "https://clerk.com/docs/quickstarts/setup-clerk",
+      link: "/docs/quickstarts/setup-clerk",
     },
   ]}
 >
 
-- Create a Supabase JWT Template
-- Configure an RLS policy with Clerk
+- Use Clerk to authenticate access to your Supabase data
+- Customize a JWT template to suit your use-case with Supabase
+- Further protect your Supabase data with an RLS policy
 
 </TutorialHero>
 
+## Quickstart
 
-# Integrate Supabase with Clerk
+You can use Clerk's [JWT templates](/docs/backend-requests/making/jwt-templates#jwt-templates) to authenticate users before giving them access to your Supabase data. Doing so enables you to protect your data from unexpected changes with Supabase's [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security) while leveraging Clerk's webhooks, prebuilt components, and out-of-the-box security features like bot detection.
 
 <Steps>
 
-### Create a Supabase JWT Template
+### Create a Supabase JWT template
 
-Clerk can generate [JSON Web Tokens](https://en.wikipedia.org/wiki/JSON_Web_Token) (JWTs) to represent each user signed into your app. You can customize these JWTs with [JWT templates](/docs/backend-requests/making/jwt-templates#jwt-templates), enabling you to add any necessary data from third party services, such as Supabase.
+Supabase's API requires an access token to authenticate requests. Clerk's JWT templates allow you to generate a new valid Supabase access token for each signed in user, granting them access to your data.
 
-After your Clerk application has been created, go to the Clerk Dashboard and navigate to the **[JWT Templates](https://dashboard.clerk.com/last-active?path=jwt-templates)** page. Click on the **New template** button to create a new template based on Supabase.http://localhost:4003/docs
+To create one:
+
+1. Open your project in the Clerk Dashboard and navigate to the **[JWT Templates](https://dashboard.clerk.com/last-active?path=jwt-templates)** page in the sidebar.
+2. Select the **New template** button, then select **Supabase** from the list of options.
+3. Configure your template:
+    - The value of the **Name** field will be required when using the template in your code.
+    - The **Token lifetime** field determines how many seconds your JWT template's token will be valid for. In general, longer lifetimes can be less secure. Unless you have a reason, use the default 60 seconds.
+    - 
 
 </Steps>
 
-<Images 
-  width={3024}
-  height={1652}
-  src="/docs/images/integrations/supabase/jwt-template.webp"
-  alt="The JWT Templates page in the Clerk Dashboard. The 'New template' button was clicked, and a pop up titled 'New JWT template' is shown. The 'Supabase' template is hovered over."
-/>
-
 Once the Supabase template is created, you will be redirected to the template's page. You can now configure the template to your needs.
-
-<Images 
-  width={3024}
-  height={1652}
-  src="/docs/images/integrations/supabase/create-template.webp"
-  alt="The 'Create new template' page of the JWT Templates page in the Clerk Dashboard."
-/>
 
 The Supabase template will pre-populate the default claims required by Supabase. You can include additional claims as necessary. [Shortcodes](/docs/backend-requests/making/jwt-templates#shortcodes) are available to make adding dynamic user values easy.
 
