@@ -24,14 +24,35 @@ description: Learn how to integrate Clerk into your Supabase application.
 You can use Clerk's [JWT templates](/docs/backend-requests/making/jwt-templates#jwt-templates) to authenticate users before giving them access to your Supabase data. Doing so enables you to protect your data from unexpected changes with Supabase's [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security) while leveraging Clerk's webhooks, prebuilt components, and out-of-the-box security features like bot detection.
 
 <Steps>
-
+ 
 ### Configure your Supabase project's RLS policies
+
+It is recommended that you enable Supabase's Row Level Security (RLS) for your databases. To access the contents of a database from within your app, you must add an RLS policy to allow your database to be read.
+
+To do so:
+
+1. [Visit the Supabase dashboard](https://supabase.com/dashboard/projects) and select your project.
+1. In the sidebar, select **Authentication** → **Policies**. Select the **New Policy** button.
+1. Select **For full customization** to create your own policy.
+    - Set the policy name to "Enable read for authenticated visitors".
+    - Choose **SELECT** for the **Allowed operation**.
+    - In the **Targeted roles** dropdown, select `authenticated`.
+    - In **USING expression**, enter `true`.
+    - Finally, select **Review**. Then, select **Save policy**.
+
+<Callout type="info">
+
+  This policy gives full database read access to _any_ visitor to your app who authenticates through Clerk. To limit each user's access to only their data, see the section below on accessing user IDs in RLS policies.
+
+</Callout>
 
 ### Get your Supabase JWT secret key
 
-To give users access to your data, Supabase's API requires an access token to authenticate requests. Your Clerk project can generate these access tokens, but needs your Supabase project's JWT secret key first. To find it:
+To give users access to your data, Supabase's API requires an access token to authenticate requests. Your Clerk project can generate these access tokens, but needs your Supabase project's JWT secret key first.
 
-1. [Visit the Supabase dashboard](https://supabase.com/dashboard/projects) and select your project.
+To find it:
+
+1. Select your project from your Supabase dashboard.
 1. In the sidebar, select **Settings** → **API**. Copy the value in the **JWT Secret** field.
 1. Open [the Clerk dashboard](https://dashboard.clerk.com/) in a new tab.
 
@@ -49,6 +70,14 @@ To create a JWT template for Supabase:
     - Under **Signing key**, add the value of your Supabase **JWT secret key** from the previous step. 
     - Leave all other fields at their default settings unless you want to customize them. See [Clerk's JWT template docs](/docs/backend-requests/making/jwt-templates#creating-a-template) to learn what each of them do.
     - Select **Apply changes** to complete setup.
+
+### Set up your local project
+
+To use Clerk with Supabase in your project, you need to configure your environment variables and install the necessary SDKs.
+
+First, set up your environment variables:
+
+1. 
 
 </Steps>
 
