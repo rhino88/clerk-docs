@@ -73,11 +73,147 @@ To create a JWT template for Supabase:
 
 ### Set up your local project
 
-To use Clerk with Supabase in your project, you need to configure your environment variables and install the necessary SDKs.
+To use Clerk with Supabase in your code, first install the necessary SDKs by running the following terminal command in the root directory of your project:
 
-First, set up your environment variables:
+<Tabs type="framework" items={["Next.js", "React"]}>
+  <Tab>
+    <CodeBlockTabs type="installer" options={["npm", "yarn", "pnpm"]}>
+      ```bash filename="terminal"
+      npm install @clerk/nextjs @supabase/supabase-js
+      ```
 
-1. 
+      ```bash filename="terminal"
+      yarn add @clerk/nextjs @supabase/supabase-js
+      ```
+
+      ```bash filename="terminal"
+      pnpm add @clerk/nextjs @supabase/supabase-js
+      ```
+    </CodeBlockTabs>
+  </Tab>
+  <Tab>
+    <CodeBlockTabs type="installer" options={["npm", "yarn", "pnpm"]}>
+      ```bash filename="terminal"
+      npm install @clerk/clerk-react @supabase/supabase-js
+      ```
+
+      ```bash filename="terminal"
+      yarn add @clerk/clerk-react @supabase/supabase-js
+      ```
+
+      ```bash filename="terminal"
+      pnpm add @clerk/clerk-react @supabase/supabase-js
+      ```
+    </CodeBlockTabs>
+  </Tab>
+</Tabs>
+
+Then, set up your environment variables:
+
+1. If you don't have a `.env.local` file in the root directory of your Next.js project, create one now.
+1. Find your Clerk publishable key and secret key. If you're signed into Clerk, the `.env.local` snippet below will contain your keys. Otherwise:
+    - Navigate to your Clerk Dashboard(opens in a new tab).
+    - Select your application, then select 🔑 API Keys in the sidebar menu.
+    - You can copy your keys from the Quick Copy section.
+1. Add your keys to your `.env.local` file.
+1. Find your Supabase credentials.:
+    - Go to your Supabase dashboard. In the sidebar, select **Settings** → **API**.
+    - Copy the **Project URL**.
+    - Copy the value beside `anon` `public` in the **Project API Keys** section.
+1. Add your Supabase credentials to your `.env.local` file.
+
+The final result should resemble the following snippet:
+
+    <InjectKeys>
+    <CodeBlockTabs type="framework" options={["Next.js", "React"]}>
+    ```js filename=".env.local"
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY={{pub_key}}
+    NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+    NEXT_PUBLIC_SUPABASE_KEY=your-supabase-anon-key
+    ```
+    ```js filename=".env.local"
+    REACT_APP_CLERK_PUBLISHABLE_KEY={{pub_key}}
+    REACT_APP_SUPABASE_URL=your-supabase-url
+    REACT_APP_SUPABASE_KEY=your-supabase-anon-key
+    ```
+    </CodeBlockTabs>      
+    </InjectKeys>
+
+### Fetch Supabase data in your code 
+
+1. Create a component in your app and define a client object that can connect to your database:
+    <CodeBlockTabs type="framework" options={["Next.js", "React"]}>
+    ```ts filename="app/supabase/page.tsx"
+    import { useAuth } from '@clerk/clerk-react';
+    import { createClient } from "@supabase/supabase-js";
+    
+    // Uses the JWT passed to it to initialize the client object.
+    // This JWT will come from your JWT template, and be sent
+    // with all requests to supabase.
+    const supabaseClient = async (supabaseAccessToken) => {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.NEXT_PUBLIC_SUPABASE_KEY,
+          {
+            global: { 
+              headers: { 
+                Authorization: `Bearer ${supabaseAccessToken}`
+              }
+            },
+        });
+        return supabase;
+      };
+    ```
+    ```ts filename="components/supabase.tsx"
+    import { useAuth } from '@clerk/clerk-react';
+    import { createClient } from "@supabase/supabase-js";
+    
+    // Uses the JWT passed to it to initialize the client object.
+    // This JWT will come from your JWT template, and be sent
+    // with all requests to supabase.
+    const supabaseClient = async (supabaseAccessToken) => {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.NEXT_PUBLIC_SUPABASE_KEY,
+          {
+            global: { 
+              headers: { 
+                Authorization: `Bearer ${supabaseAccessToken}`
+              }
+            },
+        });
+        return supabase;
+      };
+    ```
+    </CodeBlockTabs>
+1. Next, define a function that gets a generated token from your JWT template, then uses it to request the contents of a table from your database:
+    <CodeBlockTabs type="framework" options={["Next.js", "React"]}>
+    ```tsx filename="app/supabase/page.tsx"
+    export default function Home() {
+    const { getToken } = useAuth();
+
+    const [dbData, setDbData] = useState<any>(null);
+    const [dbError, setDbError] = useState<any>(null);
+
+    const fetchData = async () => {
+      // Replace with your JWT template name
+      const supabaseAccessToken = await getToken({ template: "supabase" });
+      const supabase = await supabaseClient(supabaseAccessToken);
+
+      // Replace with your database table name
+      const { data, error } = await supabase.from("your_table").select();
+
+      // Handle the response
+      console.log("Data", data);
+      console.log("-------------");
+      console.log("Error", error);
+
+      setDbData(data);
+      setDbError(error);
+    };
+    ```
+    </CodeBlockTabs>
+
 
 </Steps>
 
@@ -225,6 +361,6 @@ CREATE POLICY "Authenticated users can update their own todos"
 
 ## Next steps
 
-- Get started with our official [clerk-supabase-starter](https://github.com/clerk/clerk-supabase-starter) repo
-- Check out our [Next.js + Supabase + Clerk tutorial](https://clerk.com/blog/nextjs-supabase-todos-with-multifactor-authentication)
+- Get started with Clerk's official [clerk-supabase-starter](https://github.com/clerk/clerk-supabase-starter) repo
+- Check out Clerk's [Next.js + Supabase + Clerk tutorial](https://clerk.com/blog/nextjs-supabase-todos-with-multifactor-authentication)
 - Try adding some [custom claims](/docs/backend-requests/making/jwt-templates) to the JWT template in `app_metadata` or `user_metadata`
