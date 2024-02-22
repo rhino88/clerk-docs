@@ -65,7 +65,7 @@ To create a JWT template for Supabase:
 1. Open your project in the Clerk Dashboard and navigate to the **JWT Templates** page in the sidebar.
 2. Select the **New template** button, then select **Supabase** from the list of options.
 3. Configure your template:
-    - The value of the **Name** field will be required when using the template in your code. For this example, use `supabase`.
+    - The value of the **Name** field will be required when using the template in your code. In general, you should name the template after the database you're connecting it to. For this quickstart, name it `supabase`. 
     - **Signing algorithm** will be `HS256` by default. This algorithm is required to use JWTs with Supabase. [Learn more in their docs](https://supabase.com/docs/guides/resources/glossary#jwt-signing-secret).
     - Under **Signing key**, add the value of your Supabase **JWT secret key** from the previous step. 
     - Leave all other fields at their default settings unless you want to customize them. See [Clerk's JWT template docs](/docs/backend-requests/making/jwt-templates#creating-a-template) to learn what each of them do.
@@ -157,7 +157,7 @@ The final result should resemble the following snippet:
           {
             global: { 
               headers: { 
-                Authorization: `Bearer ${supabaseAccessToken}`
+                Authorization:c `Bearer ${supabaseAccessToken}`
               }
             },
         });
@@ -173,8 +173,8 @@ The final result should resemble the following snippet:
     // with all requests to supabase.
     const supabaseClient = async (supabaseAccessToken) => {
         const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL,
-          process.env.NEXT_PUBLIC_SUPABASE_KEY,
+          process.env.REACT_APP_SUPABASE_URL,
+          process.env.REACT_APP_SUPABASE_KEY,
           {
             global: { 
               headers: { 
@@ -186,150 +186,247 @@ The final result should resemble the following snippet:
       };
     ```
     </CodeBlockTabs>
-1. Next, define a function that gets a generated token from your JWT template, then uses it to request the contents of a table from your database:
+1. Next, define a component that:
+    - Calls `useAuth()` to require authentication to access the page.
+    - Defines a function that gets a generated token from your JWT template and uses it to fetch the contents of a table in your database.
     <CodeBlockTabs type="framework" options={["Next.js", "React"]}>
     ```tsx filename="app/supabase/page.tsx"
-    export default function Home() {
-    const { getToken } = useAuth();
+    export default function Supabase() {
+      const { getToken } = useAuth();
 
-    const [dbData, setDbData] = useState<any>(null);
-    const [dbError, setDbError] = useState<any>(null);
+      const [dbData, setDbData] = useState<any>(null);
+      const [dbError, setDbError] = useState<any>(null);
 
-    const fetchData = async () => {
-      // Replace with your JWT template name
-      const supabaseAccessToken = await getToken({ template: "supabase" });
-      const supabase = await supabaseClient(supabaseAccessToken);
+      const fetchData = async () => {
+        // Replace with your JWT template name
+        const supabaseAccessToken = await getToken({ template: "supabase" });
+        const supabase = await supabaseClient(supabaseAccessToken);
 
-      // Replace with your database table name
-      const { data, error } = await supabase.from("your_table").select();
+        // Replace "your_table" with your database table name
+        const { data, error } = await supabase.from("your_table").select();
 
-      // Handle the response
-      console.log("Data", data);
-      console.log("-------------");
-      console.log("Error", error);
+        // Handle the response
+        console.log("Data", data);
+        console.log("-------------");
+        console.log("Error", error);
 
-      setDbData(data);
-      setDbError(error);
-    };
+        setDbData(data);
+        setDbError(error);
+      };
+
+      return null;
+    }
+    ```
+    ```tsx filename="components/supabase.tsx"
+    export default function Supabase() {
+      const { getToken } = useAuth();
+
+      const [dbData, setDbData] = useState<any>(null);
+      const [dbError, setDbError] = useState<any>(null);
+
+      const fetchData = async () => {
+        // Replace with your JWT template name
+        const supabaseAccessToken = await getToken({ template: "supabase" });
+        const supabase = await supabaseClient(supabaseAccessToken);
+
+        // Replace "your_table" with your database table name
+        const { data, error } = await supabase.from("your_table").select();
+
+        // Handle the response
+        console.log("Data", data);
+        console.log("-------------");
+        console.log("Error", error);
+
+        setDbData(data);
+        setDbError(error);
+      };
+
+      return null;
+    }
     ```
     </CodeBlockTabs>
+1. Finally, edit your component to return a basic UI that allows you to call `fetchData()` with a button:
+    <CodeBlockTabs type="framework" options={["Next.js", "React"]}>
+    ```tsx filename="app/supabase/page.tsx"
+    return (
+      <>
+        <div>
+          <button onClick={fetchData}>Fetch data</button>
+        </div>
+        <h2>Data</h2>
+        <p>
+          {Boolean(dbData?.length)
+            ? JSON.stringify(dbData, null, 2)
+            : "No data"}
+        </p>
+        <h2>Errors</h2>
+        <p>
+          {Boolean(dbError?.length)
+            ? JSON.stringify(dbError, null, 2)
+            : "No errors"}
+        </p>
+      </>
+    );
+    ```
+    ```tsx filename="components/supabase.tsx"
+    return (
+      <>
+        <div>
+          <button onClick={fetchData}>Fetch data</button>
+        </div>
+        <h2>Data</h2>
+        <p>
+          {Boolean(dbData?.length)
+            ? JSON.stringify(dbData, null, 2)
+            : "No data"}
+        </p>
+        <h2>Errors</h2>
+        <p>
+          {Boolean(dbError?.length)
+            ? JSON.stringify(dbError, null, 2)
+            : "No errors"}
+        </p>
+      </>
+    );
+    ```
+    </CodeBlockTabs>
+1. The final result should be similar to this:
+    <CodeBlockTabs type="framework" options={["Next.js", "React"]}>
+    ```ts filename="app/supabase/page.tsx"
+    import { useAuth } from '@clerk/clerk-react';
+    import { createClient } from "@supabase/supabase-js";
+    
+    // Uses the JWT passed to it to initialize the client object.
+    // This JWT will come from your JWT template, and be sent
+    // with all requests to supabase.
+    const supabaseClient = async (supabaseAccessToken) => {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_KEY,
+        {
+          global: { 
+            headers: { 
+              Authorization:c `Bearer ${supabaseAccessToken}`
+            }
+          },
+      });
+      return supabase;
+    };
 
+    export default function Supabase() {
+      const { getToken } = useAuth();
 
+      const [dbData, setDbData] = useState<any>(null);
+      const [dbError, setDbError] = useState<any>(null);
+
+      const fetchData = async () => {
+        // Replace with your JWT template name
+        const supabaseAccessToken = await getToken({ template: "supabase" });
+        const supabase = await supabaseClient(supabaseAccessToken);
+
+        // Replace "your_table" with your database table name
+        const { data, error } = await supabase.from("your_table").select();
+
+        // Handle the response
+        console.log("Data", data);
+        console.log("-------------");
+        console.log("Error", error);
+
+        setDbData(data);
+        setDbError(error);
+      };
+
+      return (
+        <>
+          <div>
+            <button onClick={fetchData}>Fetch data</button>
+          </div>
+          <h2>Data</h2>
+          <p>
+            {Boolean(dbData?.length)
+              ? JSON.stringify(dbData, null, 2)
+              : "No data"}
+          </p>
+          <h2>Errors</h2>
+          <p>
+            {Boolean(dbError?.length)
+              ? JSON.stringify(dbError, null, 2)
+              : "No errors"}
+          </p>
+        </>
+      );
+    }
+    ```
+    ```ts filename="components/supabase.tsx"
+    import { useAuth } from '@clerk/clerk-react';
+    import { createClient } from "@supabase/supabase-js";
+    
+    // Uses the JWT passed to it to initialize the client object.
+    // This JWT will come from your JWT template, and be sent
+    // with all requests to supabase.
+    const supabaseClient = async (supabaseAccessToken) => {
+      const supabase = createClient(
+        process.env.REACT_APP_SUPABASE_URL,
+        process.env.REACT_APP_SUPABASE_KEY,
+        {
+          global: { 
+            headers: { 
+              Authorization:c `Bearer ${supabaseAccessToken}`
+            }
+          },
+      });
+      return supabase;
+    };
+    
+    export default function Supabase() {
+      const { getToken } = useAuth();
+
+      const [dbData, setDbData] = useState<any>(null);
+      const [dbError, setDbError] = useState<any>(null);
+
+      const fetchData = async () => {
+        // Replace with your JWT template name
+        const supabaseAccessToken = await getToken({ template: "supabase" });
+        const supabase = await supabaseClient(supabaseAccessToken);
+
+        // Replace "your_table" with your database table name
+        const { data, error } = await supabase.from("your_table").select();
+
+        // Handle the response
+        console.log("Data", data);
+        console.log("-------------");
+        console.log("Error", error);
+
+        setDbData(data);
+        setDbError(error);
+      };
+      
+      return (
+        <>
+          <div>
+            <button onClick={fetchData}>Fetch data</button>
+          </div>
+          <h2>Data</h2>
+          <p>
+            {Boolean(dbData?.length)
+              ? JSON.stringify(dbData, null, 2)
+              : "No data"}
+          </p>
+          <h2>Errors</h2>
+          <p>
+            {Boolean(dbError?.length)
+              ? JSON.stringify(dbError, null, 2)
+              : "No errors"}
+          </p>
+        </>
+      );
+    }
+    ```
+    </CodeBlockTabs>
+1. Build and run your application. When you visit the page with your component, you'll be required to sign in. Press the **Fetch data** data button, and the contents of your table should be displayed below it.
+
+To learn how to show users only data associated with their user ID, see the section on RLS policies below.
 </Steps>
-
-Once the Supabase template is created, you will be redirected to the template's page. You can now configure the template to your needs.
-
-The Supabase template will pre-populate the default claims required by Supabase. You can include additional claims as necessary. [Shortcodes](/docs/backend-requests/making/jwt-templates#shortcodes) are available to make adding dynamic user values easy.
-
-<Images 
-  width={3024}
-  height={1652}
-  src="/docs/images/integrations/supabase/template-shortcodes.webp"
-  alt="The 'Create new template' page of the JWT Templates page in the Clerk Dashboard. The page is scrolled down to the 'Claims' section."
-/>
-
-Supabase requires that JWTs be signed with the H256 signing algorithm and use their signing key. You can locate the JWT secret key in your Supabase project under **Settings --> API** in the *Config* section.
-
-<Images 
-  width={2406}
-  height={1308}
-  src="/docs/images/integrations/supabase/jwt-secret-key.webp"
-  alt="The 'Create new template' page of the JWT Templates page in the Clerk Dashboard. The page is scrolled down to the 'Claims' section."
-/>
-
-Reveal the JWT secret to copy it and then paste it in the **Signing key field** in the Clerk JWT template. After the key is added, you can click the Apply Changes button to save your template.
-
-<Images 
-  width={2392}
-  height={1300}
-  src="/docs/images/integrations/supabase/signing-key.webp"
-  alt="The Supabase JWT template in the Clerk Dashboard. A red box is surrounding the 'Signing Key' section."
-/>
-
-## Configure your client
-
-To configure your client, you need to set some local environment variables. Assuming a React application, set the following.
-
-**Pro tip!** If you are signed into your Clerk Dashboard, you can copy your Clerk publishable key below. Otherwise, you can find it in the Clerk Dashboard on the [API Keys](https://dashboard.clerk.com/last-active?path=api-keys) page.
-
-<InjectKeys>
-
-```js filename=".env.local"
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY={{pub_key}}
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_KEY=your-supabase-anon-key
-```
-
-</InjectKeys>
-
-You can find your Frontend API value in the Clerk Dashboard on the **[API keys](https://dashboard.clerk.com/last-active?path=api-keys)** page. It will be the **Publishable key**.
-
-<Images
-  width={3024}
-  height={1648}
-  src="/docs/images/integrations/publishable-key.webp"
-  alt="The API keys page in the Clerk Dashboard. There is a red arrow pointing to the copy button next to the 'Publishable key'."
-/>
-
-To get the ones needed for Supabase, navigate to the same **Settings > API page** as before and locate the **anon public key** and **URL**.
-
-<Images
-  width={2392}
-  height={1300}
-  src="/docs/images/integrations/supabase/api-keys.webp"
-  alt="The 'API' page in the Supabase Dashboard. There is a red box surrounding the 'anon public key' and 'URL' fields."
-/>
-
-<Callout type="info">
-  Note: Supabase recommends enabling [Row Level Security (RLS)](https://supabase.com/docs/guides/auth/row-level-security) for your database tables and configuring access policies as needed.
-</Callout>
-
-After setting those three environment variables, you should be able to start up your application development server.
-
-Install the JavaScript client for Supabase with:
-
-```sh filename="terminal"
-npm install @supabase/supabase-js
-```
-
-You can then initialize the Supabase client by passing it the environment variables and the access token from Clerk.
-
-```jsx
-import { useAuth } from '@clerk/clerk-react';
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseClient = async (supabaseAccessToken) => {
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_KEY, {
-      global: { headers: { Authorization: `Bearer ${supabaseAccessToken}` } },
-    });
-    // set Supabase JWT on the client object,
-    // so it is sent up with all Supabase requests
-    return supabase;
-  };
-  
-function App() {
-  const { getToken } = useAuth();
-
-  const fetchData = async () => {
-    // TODO #1: Replace with your JWT template name
-    const supabaseAccessToken = await getToken({ template: 'supabase' });
-
-    const supabase = await supabaseClient(supabaseAccessToken);
-    
-    // TODO #2: Replace with your database table name
-    
-    const { data, error } = await supabase.from('your_table').select();
-
-    // TODO #3: Handle the response
-  };
-
-  return (
-    <div className="app">
-      <button onClick={fetchData}>Fetch data</button>
-    </div>
-  );
-}
-```
 
 ## Access user ID in RLS policies
 
