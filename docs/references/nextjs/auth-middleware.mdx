@@ -22,11 +22,11 @@ import { authMiddleware } from "@clerk/nextjs";
 export default authMiddleware();
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.*\\.(\\w+)$|_next|\\.well-known|opengraph-image).*)", "/", "/(api|trpc)(.*)"],
 };
 ```
 
-With the recommended matcher, all routes are protected by Clerk's authentication middleware, with the exception of internal `/_next/` routes and static files. Static files are detected by matching on paths that end in `.+\..+`. If your middleware needs to run on all routes but you don't want Clerk to protect every route, use the [`ignoredRoutes` option](#options).
+With the recommended matcher, all routes are protected by Clerk's authentication middleware, with the exception of internal `/_next/` routes, static files, `.well-known` paths and `opengraph-image`. Static files are detected by matching on paths that end in `.+\..+`. If your middleware needs to run on all routes but you don't want Clerk to protect every route, use the [`ignoredRoutes` option](#options).
 
 ### Default behaviour
 
